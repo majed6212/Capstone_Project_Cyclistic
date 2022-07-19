@@ -1,4 +1,4 @@
-# Capstone_Project_Cyclistic
+# Capstone Project Cyclistic
 Google Data Analytics Professional Certificate Capstone Project - Cyclistic Dataset
 
 This repository shows my analysis of the Cyclistic capstone project as part of completing Google Data Analytics Professional Course.<br>
