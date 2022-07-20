@@ -1,0 +1,19 @@
+let
+    #"Inserted Day Name" = Table.AddColumn(#"Changed Type", "Day Name", each Date.DayOfWeekName([started_at]), type text),
+    #"Inserted Month Name" = Table.AddColumn(#"Inserted Day Name", "Month Name", each Date.MonthName([started_at]), type text),
+    #"Reordered Columns" = Table.ReorderColumns(#"Inserted Month Name",{"ride_id", "rideable_type", "started_at", "ended_at", "start_station_name", "start_station_id", "end_station_name", "end_station_id", "start_lat", "start_lng", "end_lat", "end_lng", "Month Name", "Day Name", "member_casual"}),
+    #"Replaced Value" = Table.ReplaceValue(#"Reordered Columns","","Not Available",Replacer.ReplaceValue,{"ride_id", "rideable_type", "started_at", "ended_at", "start_station_name", "start_station_id", "end_station_name", "end_station_id", "start_lat", "start_lng", "end_lat", "end_lng", "member_casual"}),
+    #"Sorted Rows" = Table.Sort(#"Replaced Value",{{"started_at", Order.Ascending}}),
+    #"Inserted Date" = Table.AddColumn(#"Sorted Rows", "start_date", each DateTime.Date([started_at]), type date),
+    #"Inserted Time" = Table.AddColumn(#"Inserted Date", "start_time", each DateTime.Time([started_at]), type time),
+    #"Inserted Date1" = Table.AddColumn(#"Inserted Time", "end_date", each DateTime.Date([ended_at]), type date),
+    #"Inserted Time1" = Table.AddColumn(#"Inserted Date1", "end_time", each DateTime.Time([ended_at]), type time),
+    #"Added Custom" = Table.AddColumn(#"Inserted Time1", "trip_duration", each [end_time]-[start_time]),
+    #"Calculated Total Minutes" = Table.TransformColumns(#"Added Custom",{{"trip_duration", Duration.TotalMinutes, type number}}),
+    #"Rounded Off" = Table.TransformColumns(#"Calculated Total Minutes",{{"trip_duration", each Number.Round(_, 2), type number}}),
+    #"Reordered Columns1" = Table.ReorderColumns(#"Rounded Off",{"ride_id", "rideable_type", "started_at", "ended_at", "start_station_name", "start_station_id", "end_station_name", "end_station_id", "start_lat", "start_lng", "end_lat", "end_lng", "start_date", "start_time", "end_date", "end_time", "trip_duration", "member_casual"}),
+    #"Added Custom1" = Table.AddColumn(#"Reordered Columns1", "trip", each "From "&[start_station_name]&" to "&[end_station_name]),
+    #"Reordered Columns2" = Table.ReorderColumns(#"Added Custom1",{"ride_id", "rideable_type", "start_station_name", "start_station_id", "end_station_name", "trip", "end_station_id", "start_lat", "start_lng", "end_lat", "end_lng", "start_date", "start_time", "end_date", "end_time", "trip_duration", "member_casual"}),
+    #"Removed Columns" = Table.RemoveColumns(#"Reordered Columns2",{"start_date", "start_time", "end_date", "end_time", "Source.Name"})
+in
+    #"Removed Columns"
